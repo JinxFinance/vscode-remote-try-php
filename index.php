@@ -1,27 +1,28 @@
 <?php
+require_once 'vendor/autoload.php';
 
-/*----------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See LICENSE in the project root for license information.
- *---------------------------------------------------------------------------------------*/
+session_start();
 
-function sayHello($name) {
-	echo "Hello $name!";
-}
+$client = new Google_Client();
+$client->setClientId('YOUR_CLIENT_ID');
+$client->setClientSecret('YOUR_CLIENT_SECRET');
+$client->setRedirectUri('YOUR_REDIRECT_URI');
+$client->addScope('email');
+$client->addScope('profile');
 
-?>
+if (isset($_GET['code'])) {
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+	    $_SESSION['access_token'] = $token;
+		} 
 
-<html>
-	<head>
-		<title>Visual Studio Code Remote :: PHP</title>
-	</head>
-	<body>
-		<?php 
-		
-		sayHello('remote world');
-			
-		phpinfo(); 
-			
-		?>
-	</body>
-</html>
+		if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
+		    $client->setAccessToken($_SESSION['access_token']);
+			    $oauth = new Google_Service_Oauth2($client);
+				    $user_info = $oauth->userinfo->get();
+
+					    echo 'Hello, ' . $user_info->name;
+						} else {
+						    $auth_url = $client->createAuthUrl();
+							    header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
+								}
+								?>
