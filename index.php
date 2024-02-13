@@ -2,7 +2,6 @@
 require_once 'vendor/autoload.php';
 pppp
 
-0
 session_start();
 
 $client = new Google_Client();
